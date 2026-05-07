@@ -11,3 +11,18 @@ https://www.kaggle.com/datasets/datasnaek/mbti-type
 2. Place dataset in project folder
 3. Run baseline_models.ipynb
 4. Run bert_model.py for transformer model
+This project predicts MBTI personality types from text using a hybrid approach:
+> BERT (Transformer model)
+> Rule-based keyword matching
+
+Features
+BERT-based classification (16 classes)
+Hybrid prediction (rule-based + BERT)
+CLI-based prediction (predict.py)
+Model saving & resume training
+
+Tech Stack
+Python, PyTorch
+Transformers (BERT)
+Pandas, Scikit-learn
+
