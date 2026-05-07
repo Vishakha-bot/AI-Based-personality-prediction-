@@ -1,103 +1,95 @@
-# src/bert_prep.py
-
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
 import torch
 from torch.utils.data import Dataset, DataLoader
-from transformers import BertTokenizer
+from transformers import AutoTokenizer
+from sklearn.model_selection import train_test_split
 
-# -------------------------------
-# 1️⃣ Load dataset
-# -------------------------------
-df = pd.read_csv("data/mbti_1.csv")  # Your CSV file
+print("Loading dataset...")
+
+# Load dataset
+df = pd.read_csv("data/mbti_1.csv")
+
+# Keep only required columns
+df = df[['type', 'posts']]
+df.dropna(inplace=True)
+
 print("Dataset loaded successfully!")
 print(df.head())
 
-# -------------------------------
-# 2️⃣ Encode MBTI labels
-# -------------------------------
-le = LabelEncoder()
-df['label'] = le.fit_transform(df['type'])
-classes = le.classes_
-print("Labels encoded successfully!")
-print("Classes:", classes)
+# Encode labels (16 MBTI types)
+labels = sorted(df['type'].unique())
+label_dict = {label: i for i, label in enumerate(labels)}
+df['label'] = df['type'].map(label_dict)
 
-# -------------------------------
-# 3️⃣ Train/test split
-# -------------------------------
-train_df, test_df = train_test_split(df, test_size=0.2, random_state=42)
+print("Labels encoded successfully!")
+print("Classes:", labels)
+
+# Train-test split
+train_df, test_df = train_test_split(df, test_size=0.1, random_state=42)
+
 print(f"Original Training samples: {len(train_df)}, Test samples: {len(test_df)}")
 
-# -------------------------------
-# 3a️⃣ Reduce number of samples for CPU speed
-# -------------------------------
-train_df = train_df.sample(2000, random_state=42)
-test_df = test_df.sample(500, random_state=42)
+# ⚡ Reduce size for faster CPU training (optional but recommended)
+train_df = train_df.sample(n=2000, random_state=42)
+test_df = test_df.sample(n=500, random_state=42)
+
 print(f"Sampled Training samples: {len(train_df)}, Test samples: {len(test_df)}")
 
-# -------------------------------
-# 4️⃣ Tokenizer & settings
-# -------------------------------
-tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+# Tokenizer (UPDATED)
+tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 
-MAX_LEN = 64   # smaller for CPU
-BATCH_SIZE = 4  # smaller batch for CPU
+MAX_LEN = 128
+BATCH_SIZE = 8
 
-# -------------------------------
-# 5️⃣ Dataset class
-# -------------------------------
-class PersonalityDataset(Dataset):
+# Dataset class
+class MBTIDataset(Dataset):
     def __init__(self, texts, labels, tokenizer, max_len):
         self.texts = texts
         self.labels = labels
         self.tokenizer = tokenizer
         self.max_len = max_len
-    
+
     def __len__(self):
         return len(self.texts)
-    
+
     def __getitem__(self, idx):
         text = str(self.texts[idx])
-        label = int(self.labels[idx])
-        encoding = self.tokenizer.encode_plus(
+        label = self.labels[idx]
+
+        encoding = self.tokenizer(
             text,
             add_special_tokens=True,
             max_length=self.max_len,
             padding='max_length',
             truncation=True,
+            return_attention_mask=True,
             return_tensors='pt'
         )
+
         return {
             'input_ids': encoding['input_ids'].flatten(),
             'attention_mask': encoding['attention_mask'].flatten(),
             'labels': torch.tensor(label, dtype=torch.long)
         }
 
-# -------------------------------
-# 6️⃣ Create datasets & DataLoaders
-# -------------------------------
-train_dataset = PersonalityDataset(
+# Create datasets
+train_dataset = MBTIDataset(
     texts=train_df['posts'].tolist(),
     labels=train_df['label'].tolist(),
     tokenizer=tokenizer,
     max_len=MAX_LEN
 )
 
-test_dataset = PersonalityDataset(
+test_dataset = MBTIDataset(
     texts=test_df['posts'].tolist(),
     labels=test_df['label'].tolist(),
     tokenizer=tokenizer,
     max_len=MAX_LEN
 )
 
+# DataLoaders
 train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE)
 
 print("PyTorch datasets ready!")
-print("DataLoaders ready! You can now feed them into a BERT model.")
-
-# -------------------------------
-# 7️⃣ Export for train_bert.py
-# -------------------------------
-__all__ = ['train_loader', 'test_loader', 'train_df', 'test_df', 'classes']
+print("DataLoaders ready! You can now feed them into a BERT model 🚀")
