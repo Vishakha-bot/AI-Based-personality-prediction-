@@ -1,6 +1,15 @@
+<<<<<<< HEAD
 torch==2.1.0
 transformers==4.40.0
 pandas==2.2.2
 scikit-learn==1.5.0
 numpy==1.26.4
 tqdm==4.66.4
+=======
+torch==2.1.0
+transformers==4.40.0
+pandas==2.2.2
+scikit-learn==1.5.0
+numpy==1.26.4
+tqdm==4.66.4
+>>>>>>> 1185519 (Updated preprocessing, training, prediction and requirements)

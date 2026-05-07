@@ -108,6 +108,10 @@ for epoch in range(EPOCHS):
 os.makedirs("model", exist_ok=True)
 torch.save(model.state_dict(), model_path)
 
+<<<<<<< HEAD
 print("\nModel saved successfully ✅")
 
    
+=======
+print("\nModel saved successfully ✅")
+>>>>>>> 1185519 (Updated preprocessing, training, prediction and requirements)
