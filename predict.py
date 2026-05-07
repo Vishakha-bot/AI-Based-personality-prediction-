@@ -1,6 +1,9 @@
 import torch
 from transformers import BertTokenizer, BertForSequenceClassification
-from bert_prep import classes
+classes = [
+    'ENFJ','ENFP','ENTJ','ENTP','ESFJ','ESFP','ESTJ','ESTP',
+    'INFJ','INFP','INTJ','INTP','ISFJ','ISFP','ISTJ','ISTP'
+]
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -86,3 +89,7 @@ if __name__ == "__main__":
 
         label, source = predict_personality(text)
         print(f"✨ Prediction: {label}  ({source})\n")
+
+   
+       
+          
