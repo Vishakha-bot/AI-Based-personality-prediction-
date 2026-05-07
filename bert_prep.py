@@ -92,11 +92,7 @@ train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE)
 
 print("PyTorch datasets ready!")
-<<<<<<< HEAD
+
+print("DataLoaders ready! You can now feed them into a BERT model 🚀")
 print("DataLoaders ready! You can now feed them into a BERT model 🚀")
 
-
-
-=======
-print("DataLoaders ready! You can now feed them into a BERT model 🚀")
->>>>>>> 1185519 (Updated preprocessing, training, prediction and requirements)
